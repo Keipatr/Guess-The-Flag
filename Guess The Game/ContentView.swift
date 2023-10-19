@@ -8,9 +8,13 @@
 import SwiftUI
 
 struct ContentView: View {
-    var asean = ["Indonesia", "Singapore", "Malaysia", "Laos", "Philipines", "Cambodia", "Myanmar", "Thailand", "Brunei", "Vietnam"]
-    var angkaRandom = Int.random(in: 0...9)
-    
+    @State var asean = ["Indonesia", "Singapore", "Malaysia", "Laos", "Philippines", "Cambodia", "Myanmar", "Thailand", "Brunei", "Vietnam"]
+    @State var jawabBenar = []
+    @State var angkaRandom = Int.random(in: 0...9)
+    @State private var cekBenar = 0
+    @State private var cekSalah = 0
+    @State private var cekHasil = false
+
     var body: some View {
         ZStack{
             Color.mint
@@ -23,13 +27,21 @@ struct ContentView: View {
             }
           
         }
-        
+        .alert(isPresented: $cekHasil) {
+                    Alert(
+                        title: Text("Game Over"),
+                        message: Text("Tebakan Total : \(cekBenar + cekSalah) | Wrong: \(cekSalah)"),
+                        dismissButton: .default(Text("Main Ulang!")) {
+                            playAgain()
+                        }
+                    )
+                }
         HStack{
             Spacer()
             VStack{
                 ForEach(0..<5) { number in
                     Button {
-                        
+                        cekJawab(number: number)
                     } label: {
                         
                         Image(asean[number])
@@ -42,7 +54,7 @@ struct ContentView: View {
             VStack{
                 ForEach(5..<10) { number in
                     Button {
-                        
+                        cekJawab(number: number)
                     } label: {
                         
                         Image(asean[number])
@@ -57,12 +69,41 @@ struct ContentView: View {
         
     }
     
-    func printConsole() {
-        print("Hai")
+    func cekJawab(number: Int) {
+        if asean[number] == asean[angkaRandom]
+        {
+            cekBenar += 1
+            jawabBenar.append(asean[angkaRandom])
+            if cekBenar == 10
+            {
+                cekHasil = true
+            }
+            else
+            {
+                randomize()
+            }
+        }
+        else
+        {
+            cekSalah += 1
+            randomize()
+        }
+        
     }
     
-    func buttonBerbahaya(){
-        print("wow")
+    func randomize(){
+        repeat {
+                    angkaRandom = Int.random(in: 0..<asean.count)
+        } while jawabBenar.contains(where: { $0 as! String == asean[angkaRandom] })
+    }
+    
+    func playAgain(){
+        asean = ["Indonesia", "Singapore", "Malaysia", "Laos", "Philippines", "Cambodia", "Myanmar", "Thailand", "Brunei", "Vietnam"]
+        jawabBenar = []
+        angkaRandom = Int.random(in: 0...9)
+        cekBenar = 0
+        cekSalah = 0
+        cekHasil = false
     }
 }
 
